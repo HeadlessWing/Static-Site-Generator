@@ -237,7 +237,7 @@ class TestTextNode(unittest.TestCase):
         )
     def test_text_to_textnodes(self):
         node = TextNode("![image](https://www.example.COM/IMAGE.PNG) words a [link](https://www.google.com) and ![alt text for image](url/of/image.jpg) This is a **bold**_italic_`some code`", TextType.TEXT)
-        new_node = text_to_textnodes([node])
+        new_node = text_to_text_nodes([node])
         self.assertListEqual(
             [
                 TextNode("image", TextType.IMAGE, "https://www.example.COM/IMAGE.PNG"),
@@ -254,7 +254,7 @@ class TestTextNode(unittest.TestCase):
         )
     def test_text_to_textnodes2(self):
         node = TextNode("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)", TextType.TEXT)
-        new_node = text_to_textnodes([node])
+        new_node = text_to_text_nodes([node])
         self.assertListEqual(
             [
                 TextNode("This is ", TextType.TEXT),
