@@ -2,6 +2,8 @@ from enum import Enum
 from htmlnode import *
 from textnode import *
 import re
+import textwrap
+
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
     HEADING = "heading"
@@ -11,12 +13,11 @@ class BlockType(Enum):
     OLIST = "ordered_list"
 
 def markdown_to_blocks(markdown):
+    markdown = textwrap.dedent(markdown)
     final_blocks = []
     blocks = markdown.split("\n\n")
     for block in blocks:
         block = block.strip()
-        if "\n" in block:
-            block = block.replace("            ","")
         if block != "":
             final_blocks.append(block)
 
@@ -64,25 +65,32 @@ def markdown_to_html_node(markdown):
         block_type = block_to_block_type(block)
         match block_type:
             case BlockType.PARAGRAPH:
-                block_list.append(ParentNode("p", text_to_children([TextNode(block, TextType.TEXT)])))
+                lines = block.split("\n")
+                paragraph = " ".join(lines)
+                block_list.append(ParentNode("p", text_to_children([TextNode(paragraph, TextType.TEXT)])))
             case BlockType.HEADING:
                 i = count_header(block)
-                block_list.append(ParentNode(f"h{i}", text_to_children([TextNode(block[i:], TextType.TEXT)])))
+                block_list.append(ParentNode(f"h{i}", text_to_children([TextNode(block[i+1:], TextType.TEXT)])))
             case BlockType.CODE:
-                block_list.append(ParentNode("pre",[text_node_to_html_node(TextNode(block[3:-3].strip(),TextType.CODE))]))
+                block_list.append(ParentNode("pre",[text_node_to_html_node(TextNode(block[4:-3],TextType.CODE))]))
             case BlockType.QUOTE:
-                block_list.append(ParentNode("blockquote", text_to_children([TextNode(block[1:-1], TextType.TEXT)])))
+                lines = block.split("\n")
+                new_lines = []
+                for line in lines:
+                    new_lines.append(line.lstrip("> "))
+                paragraph = " ".join(new_lines)
+                block_list.append(ParentNode("blockquote", text_to_children([TextNode(paragraph, TextType.TEXT)])))
             case BlockType.ULIST:
                 children = []
                 list_lines = block.split("\n")
                 for line in list_lines:
-                    children.append(ParentNode("li",text_to_children(line[2:])))
+                    children.append(ParentNode("li",text_to_children([TextNode(line[2:], TextType.TEXT)])))
                 block_list.append(ParentNode("ul", children))
             case BlockType.OLIST:
                 children = []
                 list_lines = block.split("\n")
                 for line in list_lines:
-                    children.append(ParentNode("li",text_to_children(line[2:])))
+                    children.append(ParentNode("li",text_to_children([TextNode(line[3:], TextType.TEXT)])))
                 block_list.append(ParentNode("ol", children))
     return ParentNode("div", block_list)
 
