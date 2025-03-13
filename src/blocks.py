@@ -12,7 +12,6 @@ class BlockType(Enum):
 
 def markdown_to_blocks(markdown):
     final_blocks = []
-
     blocks = markdown.split("\n\n")
     for block in blocks:
         block = block.strip()
@@ -43,6 +42,7 @@ def block_to_block_type(block):
         return BlockType.OLIST
     else:
         return BlockType.PARAGRAPH
+
 def text_to_children(text):
     children = []
     text_nodes = text_to_text_nodes(text)
@@ -50,21 +50,39 @@ def text_to_children(text):
         children.append(text_node_to_html_node(text_node))
     return children
 
-def mark_down_to_html_node(markdown):
+def count_header(block):
+    for i in range (1,5):
+        if block[i] != "#":
+            return i
+    return 6
+
+
+def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    block_list = []
     for block in blocks:
-        block_list = []
         block_type = block_to_block_type(block)
         match block_type:
             case BlockType.PARAGRAPH:
-                block_list.append(ParentNode("p", text_to_children(block)))
+                block_list.append(ParentNode("p", text_to_children([TextNode(block, TextType.TEXT)])))
             case BlockType.HEADING:
-                
+                i = count_header(block)
+                block_list.append(ParentNode(f"h{i}", text_to_children([TextNode(block[i:], TextType.TEXT)])))
             case BlockType.CODE:
-                block_list.append(ParentNode("pre",[text_node_to_html_node(TextNode(block[3:-4],TextType.CODE))]))
+                block_list.append(ParentNode("pre",[text_node_to_html_node(TextNode(block[3:-3].strip(),TextType.CODE))]))
             case BlockType.QUOTE:
-
+                block_list.append(ParentNode("blockquote", text_to_children([TextNode(block[1:-1], TextType.TEXT)])))
             case BlockType.ULIST:
-
+                children = []
+                list_lines = block.split("\n")
+                for line in list_lines:
+                    children.append(ParentNode("li",text_to_children(line[2:])))
+                block_list.append(ParentNode("ul", children))
             case BlockType.OLIST:
+                children = []
+                list_lines = block.split("\n")
+                for line in list_lines:
+                    children.append(ParentNode("li",text_to_children(line[2:])))
+                block_list.append(ParentNode("ol", children))
+    return ParentNode("div", block_list)
 
