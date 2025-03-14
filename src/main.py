@@ -37,15 +37,15 @@ def generate_page(from_path, dest_path, template_path, base_path):
     title = extract_title(markdown)
     content = markdown_to_html_node(markdown)
     new_page = template.replace("{{ Title }}", title).replace("{{ Content }}", content.to_html())
-    new_page = new_page.replace('href="/', f'href="{base_path}').replace('src="/', f'src="{base_path}')
+    new_page2 = new_page.replace('href="/', f'href="{base_path}').replace('src="/', f'src="{base_path}')
     
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
         os.makedirs(dest_dir_path, exist_ok=True)
 
     with open(f"{dest_path}/index.html", "w") as file:
-        file.write(new_page)
-def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path, base_path = "/"):
+        file.write(new_page2)
+def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path, base_path):
     files = os.listdir(dir_path_contents)
     for file in files:
         n_origin = os.path.join(dir_path_contents, file)
@@ -54,7 +54,7 @@ def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path, ba
         if os.path.isdir(n_origin) == True:
             n_destination = os.path.join(dest_dir_path, file)
             os.mkdir(n_destination)
-            generate_pages_recursive(n_origin, template_path, n_destination)
+            generate_pages_recursive(n_origin, template_path, n_destination, base_path)
 
 def main():
     copy_static_to_public() #changed function to copy to docs instead should update names
