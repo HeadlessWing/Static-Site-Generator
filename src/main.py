@@ -36,7 +36,7 @@ def generate_page(from_path, dest_path, template_path, base_path):
         template = file.read()
     title = extract_title(markdown)
     content = markdown_to_html_node(markdown)
-    new_page = template.replace("{{ Title }}", title).replace("{{ Content }}", content.to_html()).replace('href="/"', f'href="{base_path}"').replace('src="/"', f'src="{base_path}"')
+    new_page = template.replace("{{ Title }}", title).replace("{{ Content }}", content.to_html()).replace('href="/', f'href="{base_path}').replace('src="/', f'src="{base_path}')
     
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
