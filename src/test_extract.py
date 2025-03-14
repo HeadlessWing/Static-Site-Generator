@@ -20,7 +20,12 @@ class TestExtract(unittest.TestCase):
             ],
             matches,
         )
-        
+    def test_extract_title(self):
+        header = extract_title("# Hello\n\n # Hello2")
+        self.assertEqual("Hello", header)
 
+    def test_extract_title(self):
+        header = extract_title("? Hello\n\n# Hello2")
+        self.assertEqual("Hello2", header)
 if __name__ == "__main__":
     unittest.main()
