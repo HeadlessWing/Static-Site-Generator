@@ -58,10 +58,8 @@ def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path, ba
 def main():
     copy_static_to_public() #changed function to copy to docs instead should update names
     base_path = "/"
-    try:
-        base_path = sys.argv[0]
-    except:
-        pass
+    if len(sys.argv) > 1:
+        base_path = sys.argv[1]
     generate_pages_recursive("./content", "./template.html", "docs/", base_path)
 
 
