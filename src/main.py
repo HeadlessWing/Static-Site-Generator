@@ -1,3 +1,4 @@
+import sys
 from textnode import *
 from htmlnode import *
 import os
@@ -5,9 +6,9 @@ import shutil
 from extract import extract_title
 from blocks import markdown_to_html_node
 dir_path_static = "./static"
-dir_path_public = "./public"
+dir_path_public = "./docs"
 
-def copy_static_to_public():
+def copy_static_to_public(): #changed function to copy to docs instead should update names
     if os.path.exists(dir_path_static) == False: # or 
         raise Exception("required paths do not exist")
     if os.path.exists(dir_path_public) == True:
@@ -27,7 +28,7 @@ def copy_dir(origin, destination):
             os.mkdir(n_destination)
             copy_dir(n_origin, n_destination)
 
-def generate_page(from_path, dest_path, template_path):
+def generate_page(from_path, dest_path, template_path, base_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path) as file:
         markdown = file.read()
@@ -35,7 +36,7 @@ def generate_page(from_path, dest_path, template_path):
         template = file.read()
     title = extract_title(markdown)
     content = markdown_to_html_node(markdown)
-    new_page = template.replace("{{ Title }}", title).replace("{{ Content }}", content.to_html())
+    new_page = template.replace("{{ Title }}", title).replace("{{ Content }}", content.to_html()).replace('href="/"', f'href="{base_path}').replace('src="/"', f'src="{base_path}')
     
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
@@ -43,20 +44,25 @@ def generate_page(from_path, dest_path, template_path):
 
     with open(f"{dest_path}/index.html", "w") as file:
         file.write(new_page)
-def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_contents, template_path, dest_dir_path, base_path = "/"):
     files = os.listdir(dir_path_contents)
     for file in files:
         n_origin = os.path.join(dir_path_contents, file)
         if os.path.isfile(n_origin) == True:
-            generate_page(n_origin, dest_dir_path, template_path)
+            generate_page(n_origin, dest_dir_path, template_path, base_path)
         if os.path.isdir(n_origin) == True:
             n_destination = os.path.join(dest_dir_path, file)
             os.mkdir(n_destination)
             generate_pages_recursive(n_origin, template_path, n_destination)
 
 def main():
-    copy_static_to_public()
-    generate_pages_recursive("./content", "./template.html", "public/")
+    copy_static_to_public() #changed function to copy to docs instead should update names
+    base_path = "/"
+    try:
+        base_path = sys.argv[0]
+    except:
+        pass
+    generate_pages_recursive("./content", "./template.html", "docs/", base_path)
 
 
 main()
